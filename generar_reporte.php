@@ -16,19 +16,18 @@ if ($fechainicio > $fechafin) {
     $errores .= 'La fecha final no puede ocurrir antes de la fecha inicial. </br>';
 }
 
-if(empty($errores)){
-    
-    $sql = "INSERT INTO orden_de_servicio VALUES(null,'$vehiculo','$tipo','$fecha')";
-    if(mysqli_query($conn, $sql)) {
-        $errores .= strcmp($row['estado'], 'inactivo') == 0;
-        $_SESSION['Orden_ingresada'] = '¡Se agregó una nueva orden para el vehículo '.$vehiculo.'!';
-        header('Location: form_editar_orden.php');
-    }else{
-        $_SESSION['Orden_no_ingresada'] = 'No se pudo agregar una nueva orden: </br>'.$errores;
-        header('Location: form_editar_orden.php');
-    }
+if (empty($errores)) {
 
-}else{
-    $_SESSION['Orden_no_ingresada'] = '<br/>No se pudo agregar una nueva orden: </br>'.$errores;
-    header('Location: form_editar_orden.php');
+    $sql = "SELECT * FROM orden_de_servicio WHERE orden_de_servicio.fecha BETWEEN '".$fechainicio."' AND '".$fechafin."' ORDER BY orden_de_servicio.fecha ASC";
+
+    if (mysqli_query($conn, $sql)) {
+        $_SESSION['reporte_pass'] = $sql;
+        header('Location: form_generar_reporte.php');
+    } else {
+        $_SESSION['reporte_no_pass'] = 'No se pudo agregar una nueva orden: </br>' . $errores;
+        header('Location: form_generar_reporte.php');
+    }
+} else {
+    $_SESSION['reporte_no_pass'] = '<br/>No se pudo agregar una nueva orden: </br>' . $errores;
+    header('Location: form_generar_reporte.php');
 }

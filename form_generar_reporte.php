@@ -1,20 +1,7 @@
 <?php
 require "connection.php";
 session_start();
-$sql = "SELECT * from vehiculos";
-$result = mysqli_query($conn, $sql);
-$orderData = 0;
 
-
-if (isset($_SESSION['order_found'])) {
-    $orderData = $_SESSION['order_found'];
-    unset($_SESSION['order_found']);
-}
-
-if (isset($_SESSION['order_not_found'])) {
-    $orderData = $_SESSION['order_not_found'];
-    unset($_SESSION['order_not_found']);
-}
 
 
 
@@ -35,7 +22,7 @@ if (isset($_SESSION['order_not_found'])) {
         <h13><a href='index.php'>Volver</a></h13>
     </header>
     <section>
-        <form action="Add_orden.php" method="post">
+        <form action="generar_reporte.php" method="post">
             <table>
                 <tr>
                     <td>
@@ -65,100 +52,44 @@ if (isset($_SESSION['order_not_found'])) {
                 <th>Cantidad</th>
                 <th>Valor unitario</th>
             </tr>
-        </table>
-        <table>
-            <tr>
-                <td colspan="4" style="text-align: left;">
-                    <label for="placa" class="class2">Vehículo: </label>
-                    <select name="placa" id="placa">
-                        <option value="todo">-- Ver todos --</option>
-                        <option value="crear">-- Crear --</option>
-                        <?php
-                        $sql = "SELECT * from vehiculos";
-                        $result = mysqli_query($conn, $sql);
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo "<option value='" . $row['placa'] . "'>" . $row['placa'] . "</option>";
-                            }
-                        } ?>
-                    </select>
-                </td>
-                <td>
-                    <input type="submit" value="Buscar" />
-                </td>
-            </tr>
-
-            <tr>
-                <th>Número de órden</th>
-                <th>Vehículo</th>
-                <th>Tipo</th>
-                <th>Fecha</th>
-                <th>Funciones</th>
-            </tr>
-            <?php
-
-            $checking = 0;
-
-            if (is_array($orderData)) {
-                if (sizeof($orderData) > 0) {
-                    $checking = 1;
-                } else {
-                    $checking = -1;
-                }
-            } else {
-                $checking = 0;
-            }
-
-            if ($checking == 1) {
-                $orderNumbers = implode(",", $orderData);
-                $sql = "SELECT * FROM orden_de_servicio WHERE numero_de_orden IN (" . $orderNumbers . ")";
+            <?php 
+            if (isset($_SESSION['reporte_pass'])) {
+                $sql = $_SESSION['reporte_pass'];
                 $result = mysqli_query($conn, $sql);
-                while ($row = mysqli_fetch_assoc($result)) {
+
+                while($row = mysqli_fetch_assoc($result)) {
                     echo "<tr>";
-                    echo "<td>" . $row['numero_de_orden'] . "</td>";
-                    echo "<td>" . $row['vehiculo'] . "</td>";
-                    echo "<td>" . $row['tipo_orden'] . "</td>";
-                    echo "<td>" . $row['fecha'] . "</td>";
-                    echo "<td><a href='form_editar_items.php?order=" . $row['numero_de_orden'] . "'>Editar</a><a> / </a><a href='borrar_orden.php?order=" . $row['numero_de_orden'] . "'>Borrar</a></td>";
+                    echo "<td>".$row['fecha']."</td>";
+                    echo "<td>-</td>";
+                    echo "<td>".$row['vehiculo']."</td>";
+                    echo "<td>".$row['numero_de_orden']."</td>";
+                    echo "<td>".$row['tipo_orden']."</td>";
+                    echo "<td>-</td>";
+                    echo "<td>-</td>";
+                    echo "<td>-</td>";
                     echo "</tr>";
                 }
-            } else if ($checking == -1) {
-                echo
-                "<tr>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>";
-            } else {
-                $sql = "SELECT * FROM orden_de_servicio";
-                $result = mysqli_query($conn, $sql);
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<tr>";
-                    echo "<td>" . $row['numero_de_orden'] . "</td>";
-                    echo "<td>" . $row['vehiculo'] . "</td>";
-                    echo "<td>" . $row['tipo_orden'] . "</td>";
-                    echo "<td>" . $row['fecha'] . "</td>";
-                    echo "<td><a href='form_editar_items.php?order=" . $row['numero_de_orden'] . "'>Editar</a><a> / </a><a href='borrar_orden.php?order=" . $row['numero_de_orden'] . "'>Borrar</a></td>";
-                    echo "</tr>";
-                }
+
+                $sql = "SELECT * from vehiculos";
+                unset($_SESSION['reporte_pass']);
+
             }
             ?>
+
         </table>
     </section>
+    <tr>
+        <td></td>
+    </tr>
 
     <footer>
         <table>
             <?php
-            if (isset($_SESSION['Orden_no_ingresada'])) {
-                echo '<tr><td><p>' . $_SESSION['Orden_no_ingresada'] . '</p></td></tr>';
-                unset($_SESSION['Orden_no_ingresada']);
+            if (isset($_SESSION['reporte_no_pass'])) {
+                echo '<tr><td><p>' . $_SESSION['reporte_no_pass'] . '</p></td></tr>';
+                unset($_SESSION['reporte_no_pass']);
             }
-            if (isset($_SESSION['Orden_ingresada'])) {
-                echo '<tr><td><p>' . $_SESSION['Orden_ingresada'] . '</p></td></tr>';
-                unset($_SESSION['Orden_ingresada']);
-            }
+            
             ?>
         </table>
     </footer>
